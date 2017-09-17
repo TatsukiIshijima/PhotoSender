@@ -5,18 +5,33 @@ import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+
+import java.io.File;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int RESULT_CAMERA = 1001;
+    private static final String BASE_URL = "";
 
     private ImageView mTakePhotoImageView;
     private Button mShootButton;
     private Button mSendButton;
+
+    private String mImagePath;
+    private File mImageFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +86,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             // 送信ボタン
             case R.id.send_button:
+                UploadService service = ServiceGenerator.createService(UploadService.class);
+                RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), mImageFile);
+                Call<String> call = service.upload(requestBody);
+                call.enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        Log.d(TAG, "onSuccess : " + response);
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+                        Log.d(TAG, "onFailure");
+                    }
+                });
                 break;
         }
     }
