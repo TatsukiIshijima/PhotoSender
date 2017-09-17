@@ -26,6 +26,7 @@ import java.util.Date;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -181,6 +182,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.send_button:
                 if (mImageFile != null) {
                     UploadService service = ServiceGenerator.createService(UploadService.class);
+                    RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), mImageFile);
+                    MultipartBody.Part body = MultipartBody.Part.createFormData("POST先フィールド名", mImageFile.getName(), requestFile);
+
+                    Call<ResponseBody> call = service.upload(body);
+                    call.enqueue(new Callback<ResponseBody>() {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                            Log.d(TAG, "onSuccess : " + response);
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+                            Log.d(TAG, "onFailure : " + t);
+                        }
+                    });
+
+                    /*
                     RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), mImageFile);
                     Call<String> call = service.upload(requestBody);
                     call.enqueue(new Callback<String>() {
@@ -194,10 +212,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Log.d(TAG, "onFailure");
                         }
                     });
+                    */
                 } else {
                     Log.d(TAG, "Image File is NULL");
                 }
-
                 break;
         }
     }

@@ -9,7 +9,8 @@ import retrofit2.Retrofit;
 
 public class ServiceGenerator {
 
-    private static final String API_BASE_URL = "127.0.0.1:5050/";
+    // Web ServerのIPアドレスを参照
+    private static final String API_BASE_URL = "http://192.168.0.7:5050/";
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
