@@ -1,11 +1,10 @@
-package com.io.tatsuki.photosender;
+package com.io.tatsuki.photosender.Activities;
 
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -19,6 +18,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.internal.bind.DateTypeAdapter;
+import com.io.tatsuki.photosender.APIs.PhotoSenderApi;
+import com.io.tatsuki.photosender.Models.Result;
+import com.io.tatsuki.photosender.R;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,17 +33,19 @@ import java.util.Date;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int RESULT_CAMERA = 1001;
-    private final static int REQUEST_PERMISSION = 1002;
+    private static final int REQUEST_PERMISSION = 1002;
+    private static final String BASE_URL = "http://10.0.2.2:5050";
 
     private ImageView mTakePhotoImageView;
     private Button mShootButton;
@@ -181,38 +190,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // 送信ボタン
             case R.id.send_button:
                 if (mImageFile != null) {
-                    UploadService service = ServiceGenerator.createService(UploadService.class);
-                    RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), mImageFile);
-                    MultipartBody.Part body = MultipartBody.Part.createFormData("POST先フィールド名", mImageFile.getName(), requestFile);
 
-                    Call<ResponseBody> call = service.upload(body);
-                    call.enqueue(new Callback<ResponseBody>() {
-                        @Override
-                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                            Log.d(TAG, "onSuccess : " + response);
-                        }
-
-                        @Override
-                        public void onFailure(Call<ResponseBody> call, Throwable t) {
-                            Log.d(TAG, "onFailure : " + t);
-                        }
-                    });
-
-                    /*
                     RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), mImageFile);
-                    Call<String> call = service.upload(requestBody);
-                    call.enqueue(new Callback<String>() {
+                    MultipartBody.Part part = MultipartBody.Part.createFormData("image", mImageFile.getName(), requestBody);
+
+                    Gson gson = new GsonBuilder()
+                            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                            .registerTypeAdapter(Date.class, new DateTypeAdapter())
+                            .create();
+
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl(BASE_URL)
+                            .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                            .addConverterFactory(GsonConverterFactory.create(gson))
+                            .build();
+
+                    PhotoSenderApi photoSenderApi = retrofit.create(PhotoSenderApi.class);
+
+                    Observer observer = new Observer<Result>() {
+
                         @Override
-                        public void onResponse(Call<String> call, Response<String> response) {
-                            Log.d(TAG, "onSuccess : " + response);
+                        public void onCompleted() {
+                            Log.d(TAG, "onCompleted");
                         }
 
                         @Override
-                        public void onFailure(Call<String> call, Throwable t) {
-                            Log.d(TAG, "onFailure");
+                        public void onError(Throwable e) {
+                            Log.d(TAG, "onError : "  + e.toString());
                         }
-                    });
-                    */
+
+                        @Override
+                        public void onNext(Result result) {
+                            Log.d(TAG, "onNext : " + result.getStatus());
+                        }
+                    };
+
+                    photoSenderApi.sendPhoto(part)
+                            .subscribeOn(Schedulers.newThread())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(observer);
+
                 } else {
                     Log.d(TAG, "Image File is NULL");
                 }
