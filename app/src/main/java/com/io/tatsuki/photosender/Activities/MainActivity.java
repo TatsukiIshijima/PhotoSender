@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (mImageFile != null) {
 
                     RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), mImageFile);
-                    MultipartBody.Part part = MultipartBody.Part.createFormData("image", mImageFile.getName(), requestBody);
+                    //MultipartBody.Part part = MultipartBody.Part.createFormData("image", mImageFile.getName(), requestBody);
 
                     Gson gson = new GsonBuilder()
                             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     };
 
-                    photoSenderApi.sendPhoto(part)
+                    photoSenderApi.sendPhoto(requestBody)
                             .subscribeOn(Schedulers.newThread())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(observer);

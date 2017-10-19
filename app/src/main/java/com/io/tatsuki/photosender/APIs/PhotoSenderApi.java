@@ -10,12 +10,12 @@ import retrofit2.http.Part;
 import rx.Observable;
 
 /**
- * Created by TatsukiIshijima on 2017/10/18.
+ * 画像アップロードAPI
  */
 
 public interface PhotoSenderApi {
 
     @Multipart
     @POST("image/upload")
-    public Observable<Result> sendPhoto(@Part MultipartBody.Part image);
+    public Observable<Result> sendPhoto(@Part("file\"; filename=\"send.jpg\" ") RequestBody file);
 }
