@@ -222,7 +222,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         @Override
                         public void onNext(Result result) {
-                            Log.d(TAG, "onNext : " + result.getStatus());
+                            Log.d(TAG, "onNext Status : " + result.getStatus());
+                            Log.d(TAG, "onNext Category : " + result.getCategory());
                             // TODO:レスポンスをもとに画像に描画
                         }
                     };

@@ -13,7 +13,15 @@ public class Result {
     @SerializedName("status")
     private String status;
 
+    @Expose
+    @SerializedName("category")
+    private String category;
+
     public String getStatus() {
         return this.status;
+    }
+
+    public String getCategory() {
+        return this.category;
     }
 }
