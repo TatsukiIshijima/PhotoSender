@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -31,7 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import okhttp3.MediaType;
-import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -45,15 +45,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int RESULT_CAMERA = 1001;
     private static final int REQUEST_PERMISSION = 1002;
-    private static final String BASE_URL = "http://10.0.2.2:5050";
+    private static final String BASE_URL = "http://192.168.150.41:5050";
 
     private ImageView mTakePhotoImageView;
+    private TextView mResultTextView;
     private Button mShootButton;
     private Button mSendButton;
 
     private String mImagePath;
     private File mImageFile;
     private Uri mImageUri;
+    private String mResult = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         mTakePhotoImageView = (ImageView) findViewById(R.id.take_photo_image_view);
+        mResultTextView = (TextView) findViewById(R.id.result_text);
         mShootButton = (Button) findViewById(R.id.shoot_button);
         mSendButton = (Button) findViewById(R.id.send_button);
 
@@ -185,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()) {
             // 撮影ボタン
             case R.id.shoot_button:
+                mResultTextView.setText("");
                 startActivityForResult(cameraIntent(), RESULT_CAMERA);
                 break;
             // 送信ボタン
@@ -192,7 +196,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (mImageFile != null) {
 
                     RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), mImageFile);
-                    //MultipartBody.Part part = MultipartBody.Part.createFormData("image", mImageFile.getName(), requestBody);
 
                     Gson gson = new GsonBuilder()
                             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -212,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         @Override
                         public void onCompleted() {
                             Log.d(TAG, "onCompleted");
-                            // TODO:送信完了時点で画面遷移
+                            mResultTextView.setText(mResult);
                         }
 
                         @Override
@@ -224,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         public void onNext(Result result) {
                             Log.d(TAG, "onNext Status : " + result.getStatus());
                             Log.d(TAG, "onNext Category : " + result.getCategory());
-                            // TODO:レスポンスをもとに画像に描画
+                            mResult = result.getCategory();
                         }
                     };
 
