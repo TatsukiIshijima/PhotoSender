@@ -2,7 +2,6 @@ package com.io.tatsuki.photosender.APIs;
 
 import com.io.tatsuki.photosender.Models.Result;
 
-import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -16,6 +15,6 @@ import rx.Observable;
 public interface PhotoSenderApi {
 
     @Multipart
-    @POST("image/upload")
+    @POST("vgg_app/recognition")
     public Observable<Result> sendPhoto(@Part("file\"; filename=\"send.jpg\" ") RequestBody file);
 }

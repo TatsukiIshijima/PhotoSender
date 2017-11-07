@@ -212,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         @Override
                         public void onCompleted() {
                             Log.d(TAG, "onCompleted");
+                            // TODO:送信完了時点で画面遷移
                         }
 
                         @Override
@@ -222,6 +223,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         @Override
                         public void onNext(Result result) {
                             Log.d(TAG, "onNext : " + result.getStatus());
+                            // TODO:レスポンスをもとに画像に描画
                         }
                     };
 

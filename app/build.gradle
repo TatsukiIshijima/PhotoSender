@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.io.tatsuki.photosender"
         minSdkVersion 21
@@ -37,6 +37,5 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxjava:2.1.0'
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'com.google.code.gson:gson:2.8.0'
-    provided 'org.projectlombok:lombok:1.16.18'
     testCompile 'junit:junit:4.12'
 }
